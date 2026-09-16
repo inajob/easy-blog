@@ -47,15 +47,29 @@ jobs:
 
             ## 手順
             1. Issue 本文から種ページの URL を取得し、必ず webfetch で内容を読む
-            2. `ogp-context/info.json` を read で読み、値は機械的に適用する:
-               - `image_url` が null でなければ Frontmatter の `image` にそのまま書く
-               - `youtube_embeds` が空でなければ本文の最後に各 iframe を空行を挟んでそのまま追記する
-                 （書き換え・装飾・加工禁止。値が無い場合は何もしない）
-            3. 記載があれば「推しポイント」を必ず反映する
-            4. article-writer エージェントの執筆規約に従い記事を書く
-            5. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す
-            6. 書き出したファイルを read で読み返し、内容が正しく保存されていることを確認する
+            2. 記載があれば「推しポイント」を必ず反映する
+            3. article-writer エージェントの執筆規約に従い記事を書く
+            4. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す
+            5. 書き出したファイルを read で読み返し、内容が正しく保存されていることを確認する
 
             ## 注意
             - PR の作成・ブランチ操作・git コマンド・gh コマンドは一切行わないこと（push・PR 作成は GitHub Actions 基盤が自動で行う）
             - 元ページを読まないまま記事を書くことは禁止
+            - OGP 画像や YouTube 埋め込みは記事生成後に機械的に付与される。LLM が処理する必要はない
+      - name: Post-process (OGP image + YouTube embed)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_BRANCH=$(gh pr list --author "opencode-agent[bot]" --state open --json headRefName,createdAt \
+            --jq 'sort_by(.createdAt) | last | .headRefName' 2>/dev/null || true)
+          if [ -z "$PR_BRANCH" ]; then
+            echo "No open PR found; skipping post-process"
+            exit 0
+          fi
+          git fetch origin "$PR_BRANCH" && git checkout "$PR_BRANCH"
+          node scripts/apply-meta.mjs
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add -A && git commit -m "OGP画像・YouTube埋め込みを自動付与" && git push origin "$PR_BRANCH"
+          fi

@@ -50,6 +50,25 @@ const { Content } = await render(post);
     )}
     <div class="post-body">
       <Content />
+      {
+        post.data.youtube?.length > 0 && (
+          <div class="post-embeds">
+            {post.data.youtube.map((embedUrl) => (
+              <iframe
+                class="post-youtube"
+                src={embedUrl}
+                width="560"
+                height="315"
+                title="YouTube video player"
+                frameborder="0"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            ))}
+          </div>
+        )
+      }
     </div>
   </article>
 </BaseLayout>

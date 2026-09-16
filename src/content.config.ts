@@ -9,6 +9,7 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     url: z.string().url(),
     image: z.string().optional(),
+    youtube: z.array(z.string()).optional(),
   }),
 });
 

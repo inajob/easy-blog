@@ -74,8 +74,7 @@ function pickOgpValue(html, name) {
   return extractMetaTag(html, [name]);
 }
 
-const YOUTUBE_EMBED = (id) =>
-  `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${id}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+const YOUTUBE_EMBED_URL = (id) => `https://www.youtube-nocookie.com/embed/${id}`;
 
 function normalizeEmbedSrc(src) {
   let u;
@@ -96,7 +95,7 @@ export function extractYoutubeEmbeds(html) {
   const push = (id) => {
     if (id && !seen.has(id) && out.length < 3) {
       seen.add(id);
-      out.push(YOUTUBE_EMBED(id));
+      out.push(YOUTUBE_EMBED_URL(id));
     }
   };
   const iframeRe = /<iframe\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi;
