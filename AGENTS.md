@@ -19,7 +19,9 @@ GitHub Actions + OpenCodeによるレビューブログの半自動生成環境
 
 - コメントイベントでは **人間のコメントのみ** を対象にする（`github.event.comment.user.type == 'User'`）
 - 注意: アクション `@latest` では `prompt:` 入力を指定するとコメント本文は無視されプロンプトがそのまま使われる
-  - `write-article` / `polish-prompt` は `prompt:` を指定（`/rerun` コメントは「再実行スイッチ」としてのみ機能）
-  - `brush-up` は `prompt:` を指定せず `mentions: /brushup,/bs` を使うため、コメント本文（指摘）がそのままモデルへ届く
-  - `qa-reply` も `prompt:` を指定せず `mentions: /qa` を使い、コメント本文（質問）を article-qa エージェントに渡して回答コメントを得る。
+  - 各ワークフローは `prompt:` にコメント本文（`${{ github.event.comment.body }}`）を埋め込んで使用する
+  - `write-article` / `polish-prompt`: 固定のプロンプトを使う（`/rerun` コメントは「再実行スイッチ」としてのみ機能）
+  - `brush-up`: 修正指示を明示したプロンプトにコメント本文を埋め込み、記事ファイルの編集を必須にする
+    （`mentions` 指定ではなく `prompt:` 埋め込み方式にしたことで、「コメントを読むだけで修正しない」ことを防止している）
+  - `qa-reply`: 回答用プロンプトなしで `mentions: /qa` を使い、コメント本文（質問）を article-qa エージェントに渡して回答コメントを得る。
     エージェントは `edit`/bash 権限を持たないため、ファイル変更や PR ブランチへの push は発生せず、記事へは影響しない
