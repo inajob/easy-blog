@@ -8,6 +8,9 @@ jobs:
   write:
     if: contains(github.event.issue.labels.*.name, 'article')
     runs-on: ubuntu-latest
+    concurrency:
+      group: write-article-${{ github.event.issue.number }}
+      cancel-in-progress: true
     permissions:
       contents: write
       pull-requests: write

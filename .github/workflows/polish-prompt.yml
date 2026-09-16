@@ -8,6 +8,9 @@ jobs:
   polish:
     if: contains(github.event.issue.labels.*.name, 'prompt')
     runs-on: ubuntu-latest
+    concurrency:
+      group: polish-prompt-${{ github.event.issue.number }}
+      cancel-in-progress: true
     permissions:
       contents: write
       pull-requests: write
