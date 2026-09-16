@@ -197,6 +197,14 @@ h2 {
   color: var(--accent);
 }
 
+.post-og-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
 .post-body img {
   max-width: 100%;
 }
@@ -298,6 +306,16 @@ h2 {
   .post-list h2 a {
     display: inline-block;
     padding: 0.25rem 0;
+  }
+
+  .tags {
+    gap: 0.3rem;
+    margin: 0.25rem 0;
+  }
+
+  .tags li {
+    padding: 0.05rem 0.5rem;
+    line-height: 1.4;
   }
 
   .post-list .post-source a,
