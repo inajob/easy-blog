@@ -3,10 +3,22 @@ name: write-article
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: write-article-${{ github.event.issue.number }}
+  cancel-in-progress: true
 
 jobs:
   write:
-    if: contains(github.event.issue.labels.*.name, 'article')
+    if: |
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'article')) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request == null &&
+       github.event.comment.user.type == 'User' &&
+       contains(github.event.issue.labels.*.name, 'article') &&
+       startsWith(github.event.comment.body, '/rerun'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -47,6 +59,28 @@ jobs:
         run: |
           node scripts/caption-ogp.mjs
           cat ogp-context/info.json 2>/dev/null || true
+      - name: Close stale PRs for this issue
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const term = `Closes #${context.issue.number}`;
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            const stale = prs.filter((pr) => pr.body?.includes(term));
+            for (const pr of stale) {
+              console.log(`Closing stale PR #${pr.number} (${pr.head.ref})`);
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'closed',
+              });
+            }
       - name: Run OpenCode (article-writer)
         uses: anomalyco/opencode/github@latest
         env:
@@ -64,23 +98,44 @@ jobs:
             1. Issue 本文から種ページの URL を取得し、必ず webfetch で内容を読む
             2. 記載があれば「推しポイント」を必ず反映する
             3. article-writer エージェントの執筆規約に従い記事を書く
-            4. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す
+            4. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す。
+               同じ日付・同じ slug の記事が既に repo 内に存在する場合は slug を変えて衝突を避ける
             5. 書き出したファイルを read で読み返し、内容が正しく保存されていることを確認する
 
             ## 注意
+            - このプロンプトは再実行（Issue への `/rerun` コメント）でも同じ内容で実行される。
+              前回の PR が既に閉じられている場合もあるため、Issue 本文と元ページを改めて読み直して記事を書くこと
             - PR の作成・ブランチ操作・git コマンド・gh コマンドは一切行わないこと（push・PR 作成は GitHub Actions 基盤が自動で行う）
             - 元ページを読まないまま記事を書くことは禁止
             - OGP 画像や YouTube 埋め込みは記事生成後に機械的に付与される。LLM が処理する必要はない
+      - name: Find PR for this issue
+        id: find-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const term = `Closes #${context.issue.number}`;
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            const pr = prs
+              .filter((p) => p.body?.includes(term))
+              .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+              .at(-1);
+            if (pr) {
+              core.setOutput('branch', pr.head.ref);
+              console.log(`Found PR #${pr.number} on branch ${pr.head.ref}`);
+            } else {
+              console.log('No open PR found for this issue');
+            }
       - name: Post-process (OGP image + YouTube embed)
+        if: steps.find-pr.outputs.branch != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_BRANCH=$(gh pr list --author "opencode-agent[bot]" --state open --json headRefName,createdAt \
-            --jq 'sort_by(.createdAt) | last | .headRefName' 2>/dev/null || true)
-          if [ -z "$PR_BRANCH" ]; then
-            echo "No open PR found; skipping post-process"
-            exit 0
-          fi
+          PR_BRANCH="${{ steps.find-pr.outputs.branch }}"
           git fetch origin "$PR_BRANCH" && git checkout "$PR_BRANCH"
           node scripts/apply-meta.mjs
           if git diff --quiet; then

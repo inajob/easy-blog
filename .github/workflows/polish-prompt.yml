@@ -3,10 +3,22 @@ name: polish-prompt
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: polish-prompt-${{ github.event.issue.number }}
+  cancel-in-progress: true
 
 jobs:
   polish:
-    if: contains(github.event.issue.labels.*.name, 'prompt')
+    if: |
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'prompt')) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request == null &&
+       github.event.comment.user.type == 'User' &&
+       contains(github.event.issue.labels.*.name, 'prompt') &&
+       startsWith(github.event.comment.body, '/rerun'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,6 +37,28 @@ jobs:
           git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w 0)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Close stale PRs for this issue
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const term = `Closes #${context.issue.number}`;
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            const stale = prs.filter((pr) => pr.body?.includes(term));
+            for (const pr of stale) {
+              console.log(`Closing stale PR #${pr.number} (${pr.head.ref})`);
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'closed',
+              });
+            }
       - name: Extract PR thread from issue body
         id: pr-thread
         uses: actions/github-script@v7
@@ -67,6 +101,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_CONFIG_CONTENT: '{"default_agent": "prompt-polisher"}'
         with:
           model: opencode/big-pickle
           agent: prompt-polisher
@@ -91,3 +126,5 @@ jobs:
             - 明確な改善意図がない変更・風格の書き換えはしない
             - 参考 PR のやり取りをそのまま写すのではなく、改善すべき点として要約して反映する
             - セキュリティに関わる要望は最優先で扱う
+            - 再実行（Issue への `/rerun` コメント）でも同じ内容で実行される。前回の PR は
+              自動的に閉じられているため、Issue 本文と参考 PR を改めて読み直して作業すること
