@@ -9,7 +9,6 @@ permissions:
   - websearch
   - glob
   - grep
-  - bash
 ---
 
 # article-writer

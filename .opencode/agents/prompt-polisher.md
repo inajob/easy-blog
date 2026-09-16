@@ -7,7 +7,6 @@ permissions:
   - edit
   - glob
   - grep
-  - bash
 ---
 
 # prompt-polisher

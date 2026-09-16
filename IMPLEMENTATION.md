@@ -7,6 +7,10 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 - **GitHub 連携**: OpenCode GitHub App は使わず、runner の `GITHUB_TOKEN`（`use_github_token: true`）で運用
   - 運用ルール: **1 ランで作業を完結させ、次のランは人間のアクション（Issue・`/brushup` コメント）で開始する**。
     Bot の commit/コメントではワークフローが再起動しない（GITHUB_TOKEN の仕様）が、人間トリガーは常に動くため全ループが成立する
+  - **git 認証はワークフロー側で明示設定する**（`use_github_token` モードでは基盤が push 認証を設定しないため、
+    checkout 直後の `Configure git auth` ステップで `AUTHORIZATION` ヘッダと commit identity を補う）
+  - **エージェントに bash を許可しない**（article-writer / prompt-polisher）。agent が自前で `git`/`gh` を実行すると
+    基盤の `switched` 検知により push/PR がスキップされ、PR が作られずコメントだけが返る事故になる
 
 ## 手順
 
