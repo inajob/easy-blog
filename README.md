@@ -137,6 +137,6 @@ npm run build   # 静的サイトを dist/ に生成
 
 ## 前提 / 注意
 
-- GitHub Actions + OpenCode を利用するため **Actions の利用（課金枠）と `OPENCODE_API_KEY` が必要**
+- **GitHub Actions はパブリックリポジトリで無料**（プライベートも一定の枠内は無料。超過分のみ課金）。`OPENCODE_API_KEY`（OpenCode Zen、無料枠あり）が必要
 - 記事の質は基盤のモデルに依存します。記事は必ず人間がレビューしてから公開してください
 - 並行して `article` と `prompt` ラベルの Issue は動かせますが、コンテンツ生成系は同じ Issue 番号に対して 1 実行に直列化されます（`concurrency`）
