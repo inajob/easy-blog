@@ -1,0 +1,41 @@
+name: qa-reply
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  reply:
+    if: |
+      github.event.comment.user.type == 'User' &&
+      github.event.issue.pull_request != null &&
+      startsWith(github.event.comment.body, '/qa')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Configure git auth (use_github_token mode)
+        run: |
+          git config --local user.name "opencode-agent[bot]"
+          git config --local user.email "opencode-agent[bot]@users.noreply.github.com"
+          git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w 0)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run OpenCode (answer /qa comment)
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_CONFIG_CONTENT: '{"default_agent": "article-qa"}'
+        with:
+          model: opencode/big-pickle
+          agent: article-qa
+          mentions: /qa
+          use_github_token: true

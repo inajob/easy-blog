@@ -32,6 +32,7 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 - [x] `write-article.yml` — `issues[opened]` + `issue_comment`（`/rerun`）+ `label=article` → 記事 PR 作成（`use_github_token`）
 - [x] `polish-prompt.yml` — `issues[opened]` + `issue_comment`（`/rerun`）+ `label=prompt` → プロンプト改善 PR（`use_github_token`）
 - [x] `brush-up.yml` — `issue_comment[created]`、`/brushup`（または `/bs`）コメント（Bot 除外）→ 既存 PR を修正（`use_github_token`）
+- [x] `qa-reply.yml` — `issue_comment[created]`、`/qa` コメント（質問）→ article-qa エージェントが回答コメントのみを返す（編集・push なし）
 - [x] `deploy.yml` — `push: [main]` → Pages v2 デプロイ
 
 > **トリガー**: `issues[opened]`（初回）と `issue_comment[created]` の `/rerun`（再実行）。**ラベルは Issue 作成時に付与する**こと
@@ -67,6 +68,7 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
     同じ PR ブランチへ追加コミットする（SSG 側が画像表示・iframe レンダリングを行う）
 - [ ] 同じ Issue に `/rerun` をコメント → 既存 PR が閉じられ、最新のタグで記事が再生成される
 - [ ] PR に `/brushup 指摘` とコメント → 修正 commit が入る
+- [ ] PR に `/qa 質問文` とコメント → ファイル変更なしで回答コメントだけが返る（article-qa は edit/bash 権限なし）
 - [ ] merge → Pages に配信される
 - [ ] `label=prompt` の Issue でプロンプト改良ループが動く
   - Issue 本文に **参考にしたい PR の URL** を書くと、その PR のコメント・レビューやり取りが
