@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("posts")).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+);
+---
+
+<BaseLayout title="easy-blog — レビューブログ" description="気になるページを読んで書くレビューブログ">
+  <h1>記事一覧</h1>
+  {posts.length === 0 ? (
+    <p>記事はまだありません。</p>
+  ) : (
+    <ul class="post-list">
+      {
+        posts.map((post) => (
+          <li>
+            <article>
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString("ja-JP")}
+              </time>
+              <h2>
+                <a href={`/easy-blog/posts/${post.slug}/`}>{post.data.title}</a>
+              </h2>
+              <p class="post-description">{post.data.description}</p>
+              {
+                post.data.tags.length > 0 && (
+                  <ul class="tags">
+                    {post.data.tags.map((tag) => <li>#{tag}</li>)}
+                  </ul>
+                )
+              }
+              <p class="post-source">
+                <a href={post.data.url} rel="noopener">元ページ↗</a>
+              </p>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  )}
+</BaseLayout>

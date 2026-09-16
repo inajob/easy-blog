@@ -1,0 +1,47 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection("posts");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: Awaited<ReturnType<typeof getCollection>>[number];
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <nav class="breadcrumb">
+    <a href="/easy-blog/">← 記事一覧</a>
+  </nav>
+  <article class="post">
+    <header>
+      <time datetime={post.data.pubDate.toISOString()}>
+        {post.data.pubDate.toLocaleDateString("ja-JP")}
+      </time>
+      <h1>{post.data.title}</h1>
+      {
+        post.data.tags.length > 0 && (
+          <ul class="tags">
+            {post.data.tags.map((tag) => <li>#{tag}</li>)}
+          </ul>
+        )
+      }
+      <p class="post-source">
+        レビュー元: <a href={post.data.url} rel="noopener">{post.data.url}</a>
+      </p>
+    </header>
+    <div class="post-body">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

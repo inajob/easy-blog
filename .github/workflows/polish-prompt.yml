@@ -1,0 +1,43 @@
+name: polish-prompt
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  polish:
+    if: contains(github.event.issue.labels.*.name, 'prompt')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Run OpenCode (prompt-polisher)
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: opencode/big-pickle
+          agent: prompt-polisher
+          prompt: |
+            # システムプロンプト改善
+            この Issue の本文を、このブログ生成システムの改善要望として読み、
+            システムプロンプトを改善してください。
+
+            ## 手順
+            1. 対象ファイルを読む: AGENTS.md, .opencode/agents/article-writer.md,
+               .opencode/agents/prompt-polisher.md, opencode.json
+            2. prompt-polisher エージェントの改善規約に従い、要望に対応する最小差分を設計する
+            3. 変更を PR として開く。PR 説明に「変更内容と理由」を各変更ごとに書く
+            4. 既に同種の PR がある場合はそれを更新する
+
+            ## 注意
+            - 明確な改善意図がない変更・風格の書き換えはしない
+            - セキュリティに関わる要望は最優先で扱う

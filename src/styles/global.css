@@ -1,0 +1,166 @@
+:root {
+  --bg: #fafaf8;
+  --fg: #2a2a28;
+  --accent: #b05a1f;
+  --muted: #777;
+  --border: #e4e2dc;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans JP", sans-serif;
+  line-height: 1.75;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.site-header {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.site-title:hover {
+  color: var(--accent);
+}
+
+.site-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+h1 {
+  font-size: 1.8rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-list li {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-list time,
+.post time,
+.breadcrumb {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.post-list h2,
+.post h1 {
+  margin: 0.25rem 0;
+}
+
+.post-list h2 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.post-list h2 a:hover {
+  color: var(--accent);
+}
+
+.post-description {
+  margin: 0.5rem 0;
+  color: var(--muted);
+}
+
+.post-source {
+  margin: 0.25rem 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
+.tags li {
+  font-size: 0.75rem;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+}
+
+.breadcrumb {
+  margin-bottom: 1rem;
+}
+
+.breadcrumb a,
+.post-source a {
+  color: var(--accent);
+}
+
+.post-body a {
+  color: var(--accent);
+}
+
+.post-body img {
+  max-width: 100%;
+}
+
+.post-body blockquote {
+  margin: 0 0 0 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+
+.post-body pre {
+  overflow-x: auto;
+  padding: 1rem;
+  background: #f0efe9;
+  border-radius: 6px;
+}
+
+.post-body code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.site-footer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.site-footer a {
+  color: var(--muted);
+}

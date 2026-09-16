@@ -1,0 +1,47 @@
+name: brush-up
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  brush:
+    if: |
+      github.event.comment.user.type != 'Bot' &&
+      github.event.issue.pull_request != null &&
+      (contains(github.event.comment.body, '/brushup') ||
+       contains(github.event.comment.body, '/bs'))
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Run OpenCode (brush-up)
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: opencode/big-pickle
+          agent: article-writer
+          mentions: /brushup,/bs
+          prompt: |
+            # ブラッシュアップ
+            この PR の会話（Issue 本文・既存コメント・前回までの修正）を読み、
+            コメントの `/brushup`（または `/bs`）以降に書かれた指摘に沿って記事を修正してください。
+
+            ## 手順
+            1. 指摘内容を読み取り、該当箇所を article-writer エージェントの規約に合わせて修正する
+            2. 修正は同じ PR ブランチに commit として反映する
+            3. 対応が終わったら、変更内容を簡潔にコメントで報告する
+            4. 原文にとどまらず構成・トーンまで含めて検討し、指摘が「要望」の場合は意図を汲む
+
+            ## 注意
+            - 指摘に賛同できない場合は理由と代替案をコメントして返答する
+            - ブラッシュアップだけで新規記事は書かない
