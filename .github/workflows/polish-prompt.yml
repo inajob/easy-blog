@@ -25,6 +25,43 @@ jobs:
           git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w 0)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract PR thread from issue body
+        id: pr-thread
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = context.payload.issue?.body || '';
+            const match = body.match(/https:\/\/github\.com\/[^\s/]+\/[^\s/]+\/pull\/(\d+)/);
+            if (!match) {
+              console.log('No PR URL found in issue body');
+              core.setOutput('pr-number', '');
+              return;
+            }
+            const prNumber = parseInt(match[1], 10);
+            const repo = context.repo;
+            const [pr, issueComments, reviewComments] = await Promise.all([
+              github.rest.pulls.get({ owner: repo.owner, repo: repo.repo, pull_number: prNumber }),
+              github.rest.issues.listComments({ owner: repo.owner, repo: repo.repo, issue_number: prNumber, per_page: 100 }),
+              github.rest.pulls.listReviewComments({ owner: repo.owner, repo: repo.repo, pull_number: prNumber, per_page: 100 }),
+            ]);
+            const items = [
+              ...issueComments.data.map((c) => ({ login: c.user?.login, at: c.created_at, body: c.body })),
+              ...reviewComments.data.map((c) => ({ login: c.user?.login, at: c.created_at, body: c.body })),
+            ].sort((a, b) => new Date(a.at) - new Date(b.at));
+            const md = [
+              `# PR #${prNumber} のやり取り`,
+              '## PR タイトル',
+              pr.data.title || '',
+              '## PR 本文',
+              pr.data.body || '',
+              '## コメント・レビュー（時系列）',
+              ...items.map((c) => `### ${c.login} @ ${c.at}\n${c.body || ''}`),
+            ].join('\n\n');
+            fs.mkdirSync('pr-context', { recursive: true });
+            fs.writeFileSync('pr-context/thread.md', md);
+            console.log(`Saved PR #${prNumber} thread (${items.length} comments)`);
+            core.setOutput('pr-number', String(prNumber));
       - name: Run OpenCode (prompt-polisher)
         uses: anomalyco/opencode/github@latest
         env:
@@ -40,12 +77,17 @@ jobs:
             システムプロンプトを改善してください。
 
             ## 手順
+            0. Issue 本文に **PR の URL が記載されている場合**、`pr-context/thread.md`
+               （ワークフローが抽出した、その PR での人間と OpenCode のやり取り）を
+               `read` で読んで改善の参考にする。該当ファイルが無ければ Issue 本文のみを参考にする
             1. 対象ファイルを読む: AGENTS.md, .opencode/agents/article-writer.md,
                .opencode/agents/prompt-polisher.md, opencode.json
             2. prompt-polisher エージェントの改善規約に従い、要望に対応する最小差分を設計する
-            3. 変更を PR として開く。PR 説明に「変更内容と理由」を各変更ごとに書く
-            4. 既に同種の PR がある場合はそれを更新する
+            3. 変更を PR として開く（PR 作成は GitHub Actions 基盤が自動で行う。
+               git コマンド・ブランチ操作・gh コマンドは一切使わないこと）。
+               PR 説明に「変更内容と理由」を各変更ごとに書く
 
             ## 注意
             - 明確な改善意図がない変更・風格の書き換えはしない
+            - 参考 PR のやり取りをそのまま写すのではなく、改善すべき点として要約して反映する
             - セキュリティに関わる要望は最優先で扱う

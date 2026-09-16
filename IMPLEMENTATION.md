@@ -54,3 +54,5 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 - [ ] PR に `/brushup 指摘` とコメント → 修正 commit が入る
 - [ ] merge → Pages に配信される
 - [ ] `label=prompt` の Issue でプロンプト改良ループが動く
+  - Issue 本文に **参考にしたい PR の URL** を書くと、その PR のコメント・レビューやり取りが
+    `pr-context/thread.md` に抽出され、prompt-polisher が改善の参考にする
