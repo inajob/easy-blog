@@ -8,8 +8,8 @@ tags:
   - PCB
   - ハーベスティング
 url: https://hackaday.com/2026/08/31/building-an-energy-harvesting-business-card/
+image: "/easy-blog/post-images/ogp-1789567386109-og.jpg"
 ---
-
 NFCハーベスティングというのは、スマホなどのNFCリーダーが発する電磁誘導の力を受け取って電子機器の電源とする技術です。たとえばReader Modeに対応したスマホにカードをかざすと、カード側に軽い電力が供給されるため、バッテリを積まなくても小さな電子回路を動かすことができます。
 
 この記事では、PCBそのままのカードサイズの名刺に21個のLEDをCharlieplexedで駆動し、スマホのNFCで電力を取ってLEDをアニメーションさせるプロジェクトを紹介しています。アンテナはPCBのトレーストレイスで形成し、STMのアンテナインダクタンス計算ツールとKiCad向けのスクリプトをLLMに作成させて設計したそうです。設計ファイルはGitHubで公開されています。
