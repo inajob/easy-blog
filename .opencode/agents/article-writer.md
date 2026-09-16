@@ -44,6 +44,8 @@ permissions:
 ## 出力形式
 
 - 保存先: `src/content/posts/YYYY-MM-DD-<slug>.md`（日付は今日、slug は半角英数字+ハイフンの短いもの）
+- **ファイルは必ず実際に書き出し、read で読み返して保存を確認する**
+- **git コマンド・ブランチ操作・commit・push・gh コマンドは一切使わない**（push と PR 作成は GitHub Actions 基盤が自動で行う。エージェントが手で行う必要はない）
 - Frontmatter:
   - `title`: 記事タイトル
   - `description`: 1文の要約
@@ -55,5 +57,6 @@ permissions:
 ## ブラッシュアップ
 
 - PR へのコメント `/brushup ...` の指示を読み、該当箇所を修正する
-- 修正は既存 PR のブランチに追記として反映し、対応内容を簡潔にコメントする
+- 修正はファイル編集のみで行う（commit・push は GitHub Actions 基盤が自動で行うため、git 操作はしない）
+- 対応内容を簡潔にコメントする
 - 指摘に対して納得できない場合は、その理由と代替案をコメントして返す

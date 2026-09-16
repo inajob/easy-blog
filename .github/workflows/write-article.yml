@@ -42,9 +42,9 @@ jobs:
             1. Issue 本文から種ページの URL を取得し、必ず webfetch で内容を読む
             2. 記載があれば「推しポイント」を必ず反映する
             3. article-writer エージェントの執筆規約に従い記事を書く
-            4. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）
-            5. 記事を PR として開く。PR 説明に記事の要約と種ページ URL を記載する
+            4. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す
+            5. 書き出したファイルを read で読み返し、内容が正しく保存されていることを確認する
 
             ## 注意
-            - 同じ Issue からの重複 PR は作らない。既に同種の PR がある場合はそれを更新する
+            - PR の作成・ブランチ操作・git コマンド・gh コマンドは一切行わないこと（push・PR 作成は GitHub Actions 基盤が自動で行う）
             - 元ページを読まないまま記事を書くことは禁止
