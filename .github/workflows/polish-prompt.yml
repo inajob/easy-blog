@@ -18,6 +18,13 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
+      - name: Configure git auth (use_github_token mode)
+        run: |
+          git config --local user.name "opencode-agent[bot]"
+          git config --local user.email "opencode-agent[bot]@users.noreply.github.com"
+          git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w 0)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run OpenCode (prompt-polisher)
         uses: anomalyco/opencode/github@latest
         env:
