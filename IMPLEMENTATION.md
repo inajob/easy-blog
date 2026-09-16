@@ -41,6 +41,8 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 
 ### 4. GitHub 側セットアップ（手動）
 - [ ] Repo Settings → Secrets and variables → Actions → `OPENCODE_API_KEY`（Zen キー）を登録
+- [ ] Repo Settings → **Actions → General → Workflow permissions** →「**Allow GitHub Actions to create and approve pull requests**」をチェック
+      （オフだと `GITHUB_TOKEN` での PR 作成が `GitHub Actions is not permitted to create or approve pull requests` で失敗する）
 - [ ] Repo Settings → Pages → Source: **GitHub Actions** に設定
 - [ ] `main` ブランチに push（リポジトリ初期化 & 上記作成物を commit）
 
