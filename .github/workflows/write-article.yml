@@ -32,6 +32,21 @@ jobs:
         run: |
           node scripts/fetch-ogp.mjs --issue-body "$ISSUE_BODY"
           cat ogp-context/info.json 2>/dev/null || true
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23.x'
+          cache-dependency-path: tools/ogp-caption/go.sum
+      - name: Download font + build caption binary
+        run: |
+          mkdir -p ogp-context
+          curl -fsSL -o ogp-context/MPLUS1p-Black.ttf \
+            https://raw.githubusercontent.com/google/fonts/main/ofl/mplus1p/MPLUS1p-Black.ttf
+          go build -o ogp-context/ogp-caption ./tools/ogp-caption
+      - name: Caption OGP image
+        run: |
+          node scripts/caption-ogp.mjs
+          cat ogp-context/info.json 2>/dev/null || true
       - name: Run OpenCode (article-writer)
         uses: anomalyco/opencode/github@latest
         env:
