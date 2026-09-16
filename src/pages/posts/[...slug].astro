@@ -19,7 +19,12 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.image}
+  pageUrl={new URL(Astro.url.pathname, Astro.site).href}
+>
   <nav class="breadcrumb">
     <a href="/easy-blog/">← 記事一覧</a>
   </nav>
@@ -40,6 +45,9 @@ const { Content } = await render(post);
         レビュー元: <a href={post.data.url} rel="noopener">{post.data.url}</a>
       </p>
     </header>
+    {post.data.image && (
+      <img class="post-og-image" src={post.data.image} alt="" loading="eager" />
+    )}
     <div class="post-body">
       <Content />
     </div>

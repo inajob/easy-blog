@@ -47,10 +47,10 @@ jobs:
 
             ## 手順
             1. Issue 本文から種ページの URL を取得し、必ず webfetch で内容を読む
-            2. `ogp-context/info.json` が存在し `image_url` が null でない場合、その値を
-               `![説明](<image_url>)` 形式の Markdown 画像として記事本文中（導入の直後など）に埋め込む。
-               `title` を画像の説明に、`description` を記事の推敲の参考に使ってよい。ファイルが無い
-               （または画像が無い）場合は画像なしで通常どおり書く
+            2. `ogp-context/info.json` を read で読み、値は機械的に適用する:
+               - `image_url` が null でなければ Frontmatter の `image` にそのまま書く
+               - `youtube_embeds` が空でなければ本文の最後に各 iframe を空行を挟んでそのまま追記する
+                 （書き換え・装飾・加工禁止。値が無い場合は何もしない）
             3. 記載があれば「推しポイント」を必ず反映する
             4. article-writer エージェントの執筆規約に従い記事を書く
             5. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す

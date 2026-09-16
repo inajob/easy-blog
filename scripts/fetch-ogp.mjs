@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const args = process.argv.slice(2);
 const argValue = (name) => {
@@ -71,6 +72,42 @@ function extractMetaTag(html, targets) {
 
 function pickOgpValue(html, name) {
   return extractMetaTag(html, [name]);
+}
+
+const YOUTUBE_EMBED = (id) =>
+  `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${id}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+
+function normalizeEmbedSrc(src) {
+  let u;
+  try {
+    u = new URL(src, 'https://example.com');
+  } catch {
+    return null;
+  }
+  const host = u.hostname.toLowerCase();
+  const isYouTube = host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com');
+  const id = u.pathname.match(/\/embed\/([\w-]+)/)?.[1];
+  return isYouTube && id ? id : null;
+}
+
+export function extractYoutubeEmbeds(html) {
+  const out = [];
+  const seen = new Set();
+  const push = (id) => {
+    if (id && !seen.has(id) && out.length < 3) {
+      seen.add(id);
+      out.push(YOUTUBE_EMBED(id));
+    }
+  };
+  const iframeRe = /<iframe\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi;
+  let m;
+  while ((m = iframeRe.exec(html)) !== null) push(normalizeEmbedSrc(m[1]));
+  if (out.length === 0) {
+    const linkRe = /https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]{6,})/g;
+    let lm;
+    while ((lm = linkRe.exec(html)) !== null) push(lm[1]);
+  }
+  return out;
 }
 
 async function fetchHtml(target) {
@@ -146,19 +183,27 @@ async function main() {
     }
   }
 
+  const youtube_embeds = extractYoutubeEmbeds(html);
+
   const info = {
     image_path: imageUrl ? `public/post-images/${path.basename(imageUrl)}` : null,
     image_url: imageUrl,
     title: ogTitle || null,
     description: ogDescription || null,
     seed_url: seedUrl,
+    youtube_embeds,
   };
   fs.mkdirSync(path.dirname(OUT_META), { recursive: true });
   fs.writeFileSync(OUT_META, JSON.stringify(info, null, 2) + '\n');
   console.log(JSON.stringify(info));
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const isDirectRun =
+  process.argv[1] &&
+  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+
+if (isDirectRun)
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
