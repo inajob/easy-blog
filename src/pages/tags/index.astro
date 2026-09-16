@@ -1,0 +1,34 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = await getCollection("posts");
+
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title="タグ一覧 — easy-blog" description="記事のタグ一覧">
+  <nav class="breadcrumb">
+    <a href="/easy-blog/">← 記事一覧</a>
+  </nav>
+  <h1>タグ一覧</h1>
+  {tags.length === 0 ? (
+    <p>タグはまだありません。</p>
+  ) : (
+    <ul class="tags">
+      {
+        tags.map(([tag, count]) => (
+          <li>
+            <a href={`/easy-blog/tags/${encodeURIComponent(tag)}/`}>#{tag} ({count})</a>
+          </li>
+        ))
+      }
+    </ul>
+  )}
+</BaseLayout>

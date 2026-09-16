@@ -16,24 +16,35 @@ const posts = (await getCollection("posts")).sort(
       {
         posts.map((post) => (
           <li>
-            <article>
-              <time datetime={post.data.pubDate.toISOString()}>
-                {post.data.pubDate.toLocaleDateString("ja-JP")}
-              </time>
-              <h2>
-                <a href={`/easy-blog/posts/${post.slug}/`}>{post.data.title}</a>
-              </h2>
-              <p class="post-description">{post.data.description}</p>
+            <article class="post-card">
               {
-                post.data.tags.length > 0 && (
-                  <ul class="tags">
-                    {post.data.tags.map((tag) => <li>#{tag}</li>)}
-                  </ul>
+                post.data.image && (
+                  <a class="post-card-thumb" href={`/easy-blog/posts/${post.slug}/`}>
+                    <img src={post.data.image} alt="" loading="lazy" />
+                  </a>
                 )
               }
-              <p class="post-source">
-                <a href={post.data.url} rel="noopener">元ページ↗</a>
-              </p>
+              <div class="post-card-content">
+                <time datetime={post.data.pubDate.toISOString()}>
+                  {post.data.pubDate.toLocaleDateString("ja-JP")}
+                </time>
+                <h2>
+                  <a href={`/easy-blog/posts/${post.slug}/`}>{post.data.title}</a>
+                </h2>
+                <p class="post-description">{post.data.description}</p>
+                {
+                  post.data.tags.length > 0 && (
+                    <ul class="tags">
+                      {post.data.tags.map((tag) => (
+                        <li><a href={`/easy-blog/tags/${encodeURIComponent(tag)}/`}>#{tag}</a></li>
+                      ))}
+                    </ul>
+                  )
+                }
+                <p class="post-source">
+                  <a href={post.data.url} rel="noopener">元ページ↗</a>
+                </p>
+              </div>
             </article>
           </li>
         ))

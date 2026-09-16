@@ -17,6 +17,20 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const youtubeEmbeds = post.data.youtube ?? [];
+
+// 関連記事: 同じタグが多い順（タグ数でスコア）、最大3件
+const allPosts = await getCollection("posts");
+const related = allPosts
+  .filter((p) => p.slug !== post.slug)
+  .map((p) => ({
+    post: p,
+    score: p.data.tags.filter((t) => post.data.tags.includes(t)).length,
+  }))
+  .filter((x) => x.score > 0)
+  .sort((a, b) => b.score - a.score || b.post.data.pubDate.getTime() - a.post.data.pubDate.getTime())
+  .slice(0, 3)
+  .map((x) => x.post);
 ---
 
 <BaseLayout
@@ -37,7 +51,9 @@ const { Content } = await render(post);
       {
         post.data.tags.length > 0 && (
           <ul class="tags">
-            {post.data.tags.map((tag) => <li>#{tag}</li>)}
+            {post.data.tags.map((tag) => (
+              <li><a href={`/easy-blog/tags/${encodeURIComponent(tag)}/`}>#{tag}</a></li>
+            ))}
           </ul>
         )
       }
@@ -51,9 +67,9 @@ const { Content } = await render(post);
     <div class="post-body">
       <Content />
       {
-        post.data.youtube?.length > 0 && (
+        youtubeEmbeds.length > 0 && (
           <div class="post-embeds">
-            {post.data.youtube.map((embedUrl) => (
+            {youtubeEmbeds.map((embedUrl) => (
               <iframe
                 class="post-youtube"
                 src={embedUrl}
@@ -71,4 +87,20 @@ const { Content } = await render(post);
       }
     </div>
   </article>
+  {
+    related.length > 0 && (
+      <section class="related-posts">
+        <h2>関連記事</h2>
+        <ul>
+          {
+            related.map((rel) => (
+              <li>
+                <a href={`/easy-blog/posts/${rel.slug}/`}>{rel.data.title}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    )
+  }
 </BaseLayout>

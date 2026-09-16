@@ -1,0 +1,48 @@
+---
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection("posts");
+  const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+  return tags.map((tag) => ({
+    params: { tag },
+    props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)) },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  tag: string;
+  posts: Awaited<ReturnType<typeof getCollection>>;
+}
+
+const { tag, posts } = Astro.props;
+const sorted = [...posts].sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout title={`#${tag} — easy-blog`} description={`「${tag}」タグの記事一覧`}>
+  <nav class="breadcrumb">
+    <a href="/easy-blog/">← 記事一覧</a>
+    <span> / </span>
+    <a href="/easy-blog/tags/">タグ一覧</a>
+  </nav>
+  <h1>#{tag}</h1>
+  <ul class="post-list">
+    {
+      sorted.map((post) => (
+        <li>
+          <article>
+            <time datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString("ja-JP")}
+            </time>
+            <h2>
+              <a href={`/easy-blog/posts/${post.slug}/`}>{post.data.title}</a>
+            </h2>
+            <p class="post-description">{post.data.description}</p>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>
