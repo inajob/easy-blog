@@ -29,10 +29,15 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 - [x] `.opencode/agents/prompt-polisher.md` — 差分ベースでの改善・理由付け・過剰改変防止
 
 ### 3. GitHub Actions ワークフロー（4本）
-- [x] `write-article.yml` — `issues[opened,labeled]` + `label=article` → 記事 PR 作成（`use_github_token`）
-- [x] `polish-prompt.yml` — 同トリガー + `label=prompt` → プロンプト改善 PR（`use_github_token`）
+- [x] `write-article.yml` — `issues[opened]` + `label=article` → 記事 PR 作成（`use_github_token`）
+- [x] `polish-prompt.yml` — `issues[opened]` + `label=prompt` → プロンプト改善 PR（`use_github_token`）
 - [x] `brush-up.yml` — `issue_comment[created]`、`/brushup` コメント（Bot 除外）→ 既存 PR を修正（`use_github_token`）
 - [x] `deploy.yml` — `push: [main]` → Pages v2 デプロイ
+
+> トリガーは `issues[opened]` のみ。**ラベルは Issue 作成時に付与する**こと
+> （`opened`+`labeled` の両方を指定すると作成時に 2 回発火するため）。
+> もし後からラベルを付けた場合に自動実行させたければ `labeled` を追加し、
+> `concurrency`（Issue 番号キー + cancel-in-progress）で単一実行に絞ること。
 
 ### 4. GitHub 側セットアップ（手動）
 - [ ] Repo Settings → Secrets and variables → Actions → `OPENCODE_API_KEY`（Zen キー）を登録
