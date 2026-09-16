@@ -51,6 +51,9 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 
 ### 5. 動作テスト
 - [ ] `label=article` の Issue（種URL + 推しポイント）を発行 → 記事 PR が自動生成される
+  - OpenCode 実行前に `scripts/fetch-ogp.mjs` がシード URL の `og:image` を `public/post-images/` に保存し、
+    `ogp-context/info.json`（gitignore 対象）へパス・タイトル等を出力
+  - エージェントがこの json を読んで記事本文へ Markdown 画像を埋め込む（画像はコミットされ配信される）
 - [ ] PR に `/brushup 指摘` とコメント → 修正 commit が入る
 - [ ] merge → Pages に配信される
 - [ ] `label=prompt` の Issue でプロンプト改良ループが動く

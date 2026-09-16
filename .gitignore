@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .astro/
+ogp-context/
 pr-context/
 *.log
 .DS_Store

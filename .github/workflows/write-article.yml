@@ -25,6 +25,13 @@ jobs:
           git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w 0)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch OGP image from seed URL
+        timeout-minutes: 2
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          node scripts/fetch-ogp.mjs --issue-body "$ISSUE_BODY"
+          cat ogp-context/info.json 2>/dev/null || true
       - name: Run OpenCode (article-writer)
         uses: anomalyco/opencode/github@latest
         env:
@@ -40,10 +47,14 @@ jobs:
 
             ## 手順
             1. Issue 本文から種ページの URL を取得し、必ず webfetch で内容を読む
-            2. 記載があれば「推しポイント」を必ず反映する
-            3. article-writer エージェントの執筆規約に従い記事を書く
-            4. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す
-            5. 書き出したファイルを read で読み返し、内容が正しく保存されていることを確認する
+            2. `ogp-context/info.json` が存在し `image_url` が null でない場合、その値を
+               `![説明](<image_url>)` 形式の Markdown 画像として記事本文中（導入の直後など）に埋め込む。
+               `title` を画像の説明に、`description` を記事の推敲の参考に使ってよい。ファイルが無い
+               （または画像が無い）場合は画像なしで通常どおり書く
+            3. 記載があれば「推しポイント」を必ず反映する
+            4. article-writer エージェントの執筆規約に従い記事を書く
+            5. 保存先: src/content/posts/YYYY-MM-DD-<slug>.md（今日の日付・半角 slug）に実際にファイルを書き出す
+            6. 書き出したファイルを read で読み返し、内容が正しく保存されていることを確認する
 
             ## 注意
             - PR の作成・ブランチ操作・git コマンド・gh コマンドは一切行わないこと（push・PR 作成は GitHub Actions 基盤が自動で行う）
