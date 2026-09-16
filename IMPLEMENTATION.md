@@ -4,6 +4,9 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 
 - **モデル**: `opencode/big-pickle`（OpenCode Zen 無料枠・全ワークフロー共通）
 - **配信先**: GitHub Pages ユーザーページ `https://inajob.github.io/easy-blog/`
+- **GitHub 連携**: OpenCode GitHub App は使わず、runner の `GITHUB_TOKEN`（`use_github_token: true`）で運用
+  - 運用ルール: **1 ランで作業を完結させ、次のランは人間のアクション（Issue・`/brushup` コメント）で開始する**。
+    Bot の commit/コメントではワークフローが再起動しない（GITHUB_TOKEN の仕様）が、人間トリガーは常に動くため全ループが成立する
 
 ## 手順
 
@@ -22,16 +25,18 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 - [x] `.opencode/agents/prompt-polisher.md` — 差分ベースでの改善・理由付け・過剰改変防止
 
 ### 3. GitHub Actions ワークフロー（4本）
-- [x] `write-article.yml` — `issues[opened,edited,labeled,unlabeled]` + `label=article` → 記事 PR 作成
-- [x] `polish-prompt.yml` — 同トリガー + `label=prompt` → プロンプト改善 PR
-- [x] `brush-up.yml` — `issue_comment[created]`、`/brushup` コメント（Bot 除外）→ 既存 PR を修正
+- [x] `write-article.yml` — `issues[opened,labeled]` + `label=article` → 記事 PR 作成（`use_github_token`）
+- [x] `polish-prompt.yml` — 同トリガー + `label=prompt` → プロンプト改善 PR（`use_github_token`）
+- [x] `brush-up.yml` — `issue_comment[created]`、`/brushup` コメント（Bot 除外）→ 既存 PR を修正（`use_github_token`）
 - [x] `deploy.yml` — `push: [main]` → Pages v2 デプロイ
 
 ### 4. GitHub 側セットアップ（手動）
-- [ ] [github.com/apps/opencode-agent](https://github.com/apps/opencode-agent) を easy-blog リポジトリに導入
 - [ ] Repo Settings → Secrets and variables → Actions → `OPENCODE_API_KEY`（Zen キー）を登録
 - [ ] Repo Settings → Pages → Source: **GitHub Actions** に設定
 - [ ] `main` ブランチに push（リポジトリ初期化 & 上記作成物を commit）
+
+> 非モード時の補足: 真の自動再トリガー（Bot 同士の多段自動化）が将来必要になったら、PAT を secret として
+> `GITHUB_TOKEN` に渡すか、OpenCode GitHub App を導入すれば対応できる。
 
 ### 5. 動作テスト
 - [ ] `label=article` の Issue（種URL + 推しポイント）を発行 → 記事 PR が自動生成される

@@ -9,7 +9,6 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'prompt')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: write
       pull-requests: write
       issues: write
@@ -23,9 +22,11 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: opencode/big-pickle
           agent: prompt-polisher
+          use_github_token: true
           prompt: |
             # システムプロンプト改善
             この Issue の本文を、このブログ生成システムの改善要望として読み、
