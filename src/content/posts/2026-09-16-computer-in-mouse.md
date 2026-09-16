@@ -4,8 +4,9 @@ description: "Galaxy S21 5G をマウスに組み込み、Samsung DeX で PC と
 pubDate: 2026-09-16
 tags: ["ハードウェアハック", "スマートフォン", "リユース", "マウス"]
 url: "https://hackaday.com/2026/09/05/theres-a-whole-computer-inside-this-mouse/"
+image: "/easy-blog/post-images/ogp-1789569167003-og.jpg"
+youtube: ["https://www.youtube-nocookie.com/embed/nv2UwswI8DI"]
 ---
-
 Samsung DeX というのは、Galaxy シリーズのスマートフォンを外部ディスプレイやキーボードに接続すると、デスクトップ風の画面で操作できるようになるモードのことです。OS を入れ替えずに Android のまま使えるので、古い機種をそのまま PC として再利用したいときに便利な仕組みです。
 
 この記事では、無線マウスの中に PC を丸ごと組み込んだ作例を紹介しています。中身は Raspberry Pi のようなシングルボードコンピュータではなく Galaxy S21 5G のスマホ本体で、バッテリー収納部を外したマウスの中に基板がすっぽり収まるそうです。密閉された小さな筐体なので発熱は気になりますが、真鍮の板を熱の拡散に使うことで、スマホ本来と同じ程度の冷却環境を確保しています。Android はそのままに Samsung DeX を利用するため、Linux 環境を追加で導入するような手間がないのもポイントです。
