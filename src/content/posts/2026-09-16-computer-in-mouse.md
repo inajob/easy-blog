@@ -1,6 +1,6 @@
 ---
 title: "マウスの中にPCが丸ごと入っている話"
-description: "Galaxy S21 5G をマウスに組み込み、Samsung DeX で PC として使う海外の作例を紹介します"
+description: "Galaxy S21 5G をマウスに組み込み、Samsung DeX で PC として使う作例を紹介します"
 pubDate: 2026-09-16
 tags: ["ハードウェアハック", "スマートフォン", "リユース", "マウス"]
 url: "https://hackaday.com/2026/09/05/theres-a-whole-computer-inside-this-mouse/"
