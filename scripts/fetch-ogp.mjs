@@ -5,7 +5,8 @@
 //   node scripts/fetch-ogp.mjs --issue-body "<issue body>"
 //
 // 出力:
-//   - 画像を public/post-images/<ogp-<timestamp>.<ext>> に保存
+//   - 画像を ogp-context/raw/<ogp-<timestamp>.<ext>> に保存（gitignore 対象。ここで直接
+//     public に入れず、キャプション生成（caption-ogp.mjs）の後に public/post-images/ へ出る）
 //   - メタ情報を ogp-context/info.json に出力（ogp-context/ は gitignore 対象）
 // 取得できない場合・エラー時はプロセスを終了させず、情報なしで続行する。
 
@@ -20,9 +21,8 @@ const argValue = (name) => {
 };
 const url = argValue('--url');
 const issueBody = argValue('--issue-body');
-const BASE_PATH = process.env.BASE_PATH || '/easy-blog';
 
-const OUT_DIR = 'public/post-images';
+const OUT_DIR = 'ogp-context/raw';
 const OUT_META = 'ogp-context/info.json';
 
 const META_TARGETS = [
@@ -173,7 +173,8 @@ async function main() {
             fs.mkdirSync(OUT_DIR, { recursive: true });
             const filename = `ogp-${Date.now()}.${ext}`;
             fs.writeFileSync(path.join(OUT_DIR, filename), buf);
-            imageUrl = `${BASE_PATH}/post-images/${filename}`;
+            imageUrl = filename;
+            // image_url（ブログ上で参照する最終 URL）はキャプション生成後に caption-ogp.mjs が設定する
           }
         }
       }
@@ -185,8 +186,9 @@ async function main() {
   const youtube_embeds = extractYoutubeEmbeds(html);
 
   const info = {
-    image_path: imageUrl ? `public/post-images/${path.basename(imageUrl)}` : null,
-    image_url: imageUrl,
+    image_path: imageUrl ? path.join(OUT_DIR, path.basename(imageUrl)) : null,
+    // image_url は caption-ogp.mjs で記事タイトルをキャプションにしてから設定する
+    image_url: null,
     title: ogTitle || null,
     description: ogDescription || null,
     seed_url: seedUrl,

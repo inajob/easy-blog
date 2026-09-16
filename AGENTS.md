@@ -10,7 +10,7 @@ GitHub Actions + OpenCodeによるレビューブログの半自動生成環境
 
 ## ワークフローの仕組み
 
-- `.github/workflows/write-article.yml`: `article` ラベル付き Issue で記事生成（OGP取得→キャプション→OpenCode→メタ付与）
+- `.github/workflows/write-article.yml`: `article` ラベル付き Issue で記事生成（OGP取得→OpenCode→キャプション→メタ付与）
 - `.github/workflows/brush-up.yml`: PR への `/brushup` コメントで記事修正
 - `.github/workflows/qa-reply.yml`: PR への `/qa` コメント（質問）に回答コメントを返す
 - `.github/workflows/polish-prompt.yml`: `prompt` ラベル付き Issue でシステムプロンプト自体を改良

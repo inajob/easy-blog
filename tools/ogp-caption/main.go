@@ -43,8 +43,14 @@ func main() {
 	drawImage := image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
 	draw.Draw(drawImage, drawImage.Bounds(), resizedImg, image.Point{}, draw.Over)
 
-	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, 6, 6)
-	drawWrappedText(drawImage, caption, *fontPath, 48, color.Black, 3, 3)
+	const outlineOffset = 4
+	// 白: 縁取りとして中心の上下左右4方向に描画（シルエット）
+	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, -outlineOffset, 0)
+	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, outlineOffset, 0)
+	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, 0, -outlineOffset)
+	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, 0, outlineOffset)
+	// 黒: 中心（最後に描く = 中央を潰して縁だけ白を残す）
+	drawWrappedText(drawImage, caption, *fontPath, 48, color.Black, 0, 0)
 
 	if err := saveImage(drawImage, outputFileName); err != nil {
 		fmt.Fprintln(os.Stderr, "Error saving image:", err)

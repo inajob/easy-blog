@@ -59,12 +59,12 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
 
 ### 5. 動作テスト
 - [ ] `label=article` の Issue（種URL + 推しポイント）を発行 → 記事 PR が自動生成される
-  - OpenCode 実行前に `scripts/fetch-ogp.mjs` がシード URL の `og:image` を `public/post-images/` に保存し、
+  - OpenCode 実行前に `scripts/fetch-ogp.mjs` がシード URL の `og:image` を `ogp-context/raw/` に保存し、
     YouTube 埋め込み URL とともに `ogp-context/info.json`（gitignore 対象）へ出力
-  - `scripts/caption-ogp.mjs` + `tools/ogp-caption`（Go バイナリ）が 1200x630 にリサイズし、
-    キャプション（og:title）を縁取り付きで重ねた JPEG を生成。元画像を差し替え info.json を更新
   - LLM は画像・埋め込みを知らずに記事のみ執筆。OpenCode アクション後に
-    `scripts/apply-meta.mjs` が記事ファイルのフロントマッターへ `image:` と `youtube:` を機械的に追記し、
+    `scripts/caption-ogp.mjs` が記事 frontmatter の `title`（OpenCode が生成した日本語タイトル）を
+    キャプションとして、1200x630 リサイズ＋縁取り付き JPEG を `public/post-images/` に出力（元画像削除・info.json 更新）
+  - 次に `scripts/apply-meta.mjs` が記事ファイルのフロントマッターへ `image:` と `youtube:` を機械的に追記し、
     同じ PR ブランチへ追加コミットする（SSG 側が画像表示・iframe レンダリングを行う）
 - [ ] 同じ Issue に `/rerun` をコメント → 既存 PR が閉じられ、最新のタグで記事が再生成される
 - [ ] PR に `/brushup 指摘` とコメント → 修正 commit が入る

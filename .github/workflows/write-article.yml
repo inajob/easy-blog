@@ -55,10 +55,6 @@ jobs:
           curl -fsSL -o ogp-context/MPLUS1p-Black.ttf \
             https://raw.githubusercontent.com/google/fonts/main/ofl/mplus1p/MPLUS1p-Black.ttf
           go build -C tools/ogp-caption -o ../../ogp-context/ogp-caption .
-      - name: Caption OGP image
-        run: |
-          node scripts/caption-ogp.mjs
-          cat ogp-context/info.json 2>/dev/null || true
       - name: Close stale PRs for this issue
         if: github.event_name == 'issue_comment'
         uses: actions/github-script@v7
@@ -130,13 +126,17 @@ jobs:
             } else {
               console.log('No open PR found for this issue');
             }
-      - name: Post-process (OGP image + YouTube embed)
+      - name: Post-process (OGP image caption + YouTube embed)
         if: steps.find-pr.outputs.branch != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_BRANCH="${{ steps.find-pr.outputs.branch }}"
           git fetch origin "$PR_BRANCH" && git checkout "$PR_BRANCH"
+          # 記事タイトル（OpenCode が生成した日本語タイトル）をキャプションに付けた OGP 画像を生成
+          node scripts/caption-ogp.mjs
+          cat ogp-context/info.json 2>/dev/null || true
+          # OGP 画像・YouTube 埋め込みの URL を frontmatter に追記
           node scripts/apply-meta.mjs
           if git diff --quiet; then
             echo "No changes to commit"
