@@ -40,9 +40,10 @@ jobs:
       - name: Fetch OGP image from seed URL
         timeout-minutes: 2
         env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          node scripts/fetch-ogp.mjs --issue-body "$ISSUE_BODY"
+          node scripts/fetch-ogp.mjs --issue-title "$ISSUE_TITLE" --issue-body "$ISSUE_BODY"
           cat ogp-context/info.json 2>/dev/null || true
       - name: Setup Go
         uses: actions/setup-go@v6

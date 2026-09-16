@@ -2,7 +2,7 @@
 // 種ページの OGP 画像・タイトル・説明を取得し、記事で使える形で配置する。
 // 使用法:
 //   node scripts/fetch-ogp.mjs --url <seed-url>
-//   node scripts/fetch-ogp.mjs --issue-body "<issue body>"
+//   node scripts/fetch-ogp.mjs --issue-title "<issue title>" --issue-body "<issue body>"
 //
 // 出力:
 //   - 画像を ogp-context/raw/<ogp-<timestamp>.<ext>> に保存（gitignore 対象。ここで直接
@@ -20,6 +20,7 @@ const argValue = (name) => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 const url = argValue('--url');
+const issueTitle = argValue('--issue-title');
 const issueBody = argValue('--issue-body');
 
 const OUT_DIR = 'ogp-context/raw';
@@ -123,12 +124,13 @@ async function fetchHtml(target) {
 }
 
 async function main() {
-  const seedUrl = url || extractUrl(issueBody);
+  const issuesText = [issueTitle, issueBody].filter(Boolean).join('\n');
+  const seedUrl = url || extractUrl(issuesText);
   if (!seedUrl) {
     console.log('No seed URL found; skipping OGP fetch');
     return;
   }
-  if (issueBody) console.log(`Seed URL extracted: ${seedUrl}`);
+  if (issuesText) console.log(`Seed URL extracted: ${seedUrl}`);
 
   let html;
   let ogImage;
