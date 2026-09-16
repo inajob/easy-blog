@@ -44,11 +44,15 @@ func main() {
 	draw.Draw(drawImage, drawImage.Bounds(), resizedImg, image.Point{}, draw.Over)
 
 	const outlineOffset = 4
-	// 白: 縁取りとして中心の上下左右4方向に描画（シルエット）
-	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, -outlineOffset, 0)
-	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, outlineOffset, 0)
-	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, 0, -outlineOffset)
-	drawWrappedText(drawImage, caption, *fontPath, 48, color.White, 0, outlineOffset)
+	// 白: 縁取りとして中心の8方向（上下左右+斜め）に描画（シルエット）
+	for _, d := range [][2]int{
+		{-outlineOffset, 0}, {outlineOffset, 0},
+		{0, -outlineOffset}, {0, outlineOffset},
+		{-outlineOffset, -outlineOffset}, {outlineOffset, -outlineOffset},
+		{-outlineOffset, outlineOffset}, {outlineOffset, outlineOffset},
+	} {
+		drawWrappedText(drawImage, caption, *fontPath, 48, color.White, d[0], d[1])
+	}
 	// 黒: 中心（最後に描く = 中央を潰して縁だけ白を残す）
 	drawWrappedText(drawImage, caption, *fontPath, 48, color.Black, 0, 0)
 
