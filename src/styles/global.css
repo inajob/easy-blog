@@ -1,9 +1,15 @@
 :root {
-  --bg: #fafaf8;
-  --fg: #2a2a28;
-  --accent: #b05a1f;
-  --muted: #777;
-  --border: #e4e2dc;
+  --bg: #eff6ee;
+  --bg-surface: #ffffff;
+  --fg: #1f2e24;
+  --accent: #00a86b;
+  --accent-deep: #007a4d;
+  --muted: #5d6b62;
+  --border: #bed6c4;
+  --border-strong: #6ca083;
+  --solder-dot: rgba(0, 168, 107, 0.08);
+  --grid-line: rgba(0, 122, 77, 0.05);
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
   color-scheme: light;
 }
 
@@ -11,26 +17,68 @@
   box-sizing: border-box;
 }
 
+html {
+  background: var(--bg);
+}
+
 body {
   margin: 0;
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans JP", sans-serif;
   line-height: 1.75;
   color: var(--fg);
-  background: var(--bg);
+  /* 基盤パターン: ソルダーパッド（ドット）+ 配線グリッド */
+  background-image:
+    radial-gradient(circle, var(--solder-dot) 1.5px, transparent 1.5px),
+    repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 28px);
+  background-position: 0 0, 14px 14px, 14px 14px;
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
 }
 
 .site-header {
   max-width: 800px;
   margin: 0 auto;
   padding: 2.5rem 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: none;
+  position: relative;
+}
+
+/* 基盤の配線風ボーダー（二重線＋ドット）でヘッダーを区切る */
+.site-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background:
+    radial-gradient(circle, var(--accent) 2.5px, transparent 2.5px) 6px 0 / 12px 4px repeat-x,
+    linear-gradient(var(--accent-deep), var(--accent-deep)) 0 0 / 100% 2px repeat-x,
+    linear-gradient(var(--bg-surface), var(--bg-surface)) 0 2px / 100% 2px repeat-x;
 }
 
 .site-title {
   font-size: 1.75rem;
   font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
   color: var(--fg);
   text-decoration: none;
+}
+
+.site-title::before {
+  content: "[ ";
+  color: var(--accent);
+}
+
+.site-title::after {
+  content: " ]";
+  color: var(--accent);
 }
 
 .site-title:hover {
@@ -50,6 +98,10 @@ main {
 
 h1 {
   font-size: 1.8rem;
+  padding: 0.3rem 0.75rem;
+  border-left: 5px solid var(--accent);
+  background: var(--bg-surface);
+  border-bottom: 2px solid var(--border);
 }
 
 h2 {
@@ -64,7 +116,11 @@ h2 {
 
 .post-list li {
   padding: 1.25rem 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px dashed var(--border-strong);
+}
+
+.post-list li:last-child {
+  border-bottom: none;
 }
 
 .post-card {
@@ -76,10 +132,11 @@ h2 {
 .post-card-thumb {
   flex-shrink: 0;
   width: 200px;
-  border-radius: 6px;
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid var(--border);
-  background: #f0efe9;
+  border: 2px solid var(--accent-deep);
+  box-shadow: 4px 4px 0 var(--border);
+  background: var(--bg-surface);
 }
 
 .post-card-thumb img {
@@ -100,6 +157,7 @@ h2 {
 .breadcrumb {
   color: var(--muted);
   font-size: 0.875rem;
+  font-family: var(--mono);
 }
 
 .post-list h2,
@@ -114,6 +172,9 @@ h2 {
 
 .post-list h2 a:hover {
   color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
 }
 
 .post-description {
@@ -125,6 +186,7 @@ h2 {
   margin: 0.25rem 0;
   color: var(--muted);
   font-size: 0.875rem;
+  font-family: var(--mono);
 }
 
 .tags {
@@ -136,33 +198,45 @@ h2 {
   padding: 0;
 }
 
+/* 角丸をやめ、基板のシルク印刷風の角張ったタグに */
 .tags li {
   font-size: 0.75rem;
-  color: var(--accent);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem;
+  font-family: var(--mono);
+  color: var(--accent-deep);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: var(--bg-surface);
+  padding: 0.15rem 0.5rem;
 }
 
 .tags li a {
-  color: var(--accent);
+  color: var(--accent-deep);
   text-decoration: none;
 }
 
 .tags li a:hover {
-  text-decoration: underline;
+  background: var(--accent-deep);
+  color: #fff;
 }
 
 .related-posts {
   margin-top: 2.5rem;
   padding: 1.25rem;
-  background: #f0efe9;
-  border-radius: 6px;
+  background: var(--bg-surface);
+  border: 2px solid var(--accent);
+  box-shadow: 4px 4px 0 var(--border);
+  border-radius: 0;
 }
 
 .related-posts h2 {
   margin-top: 0;
   font-size: 1.1rem;
+  font-family: var(--mono);
+  color: var(--accent-deep);
+}
+
+.related-posts::first-letter {
+  color: var(--accent);
 }
 
 .related-posts ul {
@@ -190,11 +264,21 @@ h2 {
 
 .breadcrumb a,
 .post-source a {
-  color: var(--accent);
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover,
+.post-source a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .post-body a {
-  color: var(--accent);
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
 }
 
 .post-og-image {
@@ -202,11 +286,16 @@ h2 {
   width: 100%;
   max-width: 100%;
   height: auto;
-  border-radius: 6px;
+  border-radius: 0;
+  border: 3px solid var(--accent-deep);
+  box-shadow: 4px 4px 0 var(--border);
+  margin: 1rem 0;
 }
 
 .post-body img {
   max-width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 0;
 }
 
 .post-embeds {
@@ -220,26 +309,53 @@ h2 {
   max-width: 560px;
   aspect-ratio: 16 / 9;
   height: auto;
-  border: 0;
+  border: 2px solid var(--accent-deep);
 }
 
 .post-body blockquote {
   margin: 0 0 0 0;
-  padding-left: 1rem;
-  border-left: 3px solid var(--accent);
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--accent);
   color: var(--muted);
+  background: var(--bg-surface);
 }
 
 .post-body pre {
   overflow-x: auto;
   padding: 1rem;
-  background: #f0efe9;
-  border-radius: 6px;
+  background: #10241a;
+  color: #a9f0c8;
+  border-radius: 0;
+  border: 1px solid var(--accent-deep);
+  font-family: var(--mono);
+  position: relative;
+}
+
+/* ターミナル風: 上部にプロンプトバー */
+.post-body pre::before {
+  content: "$> easy-blog";
+  display: block;
+  margin: -1rem -1rem 0.75rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--accent-deep);
+  color: #d8ffe8;
+  font-size: 0.8rem;
+  font-family: var(--mono);
 }
 
 .post-body code {
-  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-family: var(--mono);
   font-size: 0.9em;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.3em;
+}
+
+.post-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
 }
 
 .site-footer {
@@ -248,11 +364,21 @@ h2 {
   padding: 1.5rem 1.25rem 3rem;
   color: var(--muted);
   font-size: 0.8rem;
-  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  border-top: 2px solid var(--border-strong);
+}
+
+.site-footer::before {
+  content: "// ";
+  color: var(--accent);
 }
 
 .site-footer a {
   color: var(--muted);
+}
+
+.site-footer a:hover {
+  color: var(--accent);
 }
 
 .post-body table {
@@ -265,14 +391,20 @@ h2 {
 .post-body th,
 .post-body td {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   white-space: nowrap;
+}
+
+.post-body th {
+  background: var(--accent);
+  color: #fff;
 }
 
 /* ===== スマートフォン対応 ===== */
 @media (max-width: 640px) {
   body {
     font-size: 0.95rem;
+    background-attachment: scroll;
   }
 
   .site-header,
@@ -284,6 +416,7 @@ h2 {
 
   h1 {
     font-size: 1.5rem;
+    padding: 0.25rem 0.6rem;
   }
 
   h2 {
@@ -300,7 +433,8 @@ h2 {
 
   .post-card-thumb {
     width: 100%;
-    max-width: 400px;
+    max-width: 100%;
+    box-shadow: 3px 3px 0 var(--border);
   }
 
   .post-list h2 a {
@@ -314,7 +448,7 @@ h2 {
   }
 
   .tags li {
-    padding: 0.05rem 0.5rem;
+    padding: 0.15rem 0.5rem;
     line-height: 1.4;
   }
 
@@ -333,8 +467,17 @@ h2 {
     padding: 0.75rem;
   }
 
+  .post-body pre::before {
+    margin: -0.75rem -0.75rem 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+
   .post-body img,
   .post-og-image {
-    border-radius: 6px;
+    border-radius: 0;
+  }
+
+  .post-og-image {
+    box-shadow: 3px 3px 0 var(--border);
   }
 }
