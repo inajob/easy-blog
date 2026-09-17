@@ -58,7 +58,7 @@ const related = allPosts
         )
       }
       <p class="post-source">
-        レビュー元: <a href={post.data.url} rel="noopener">{post.data.url}</a>
+        レビュー元: <a href={post.data.url} rel="noopener">{post.data.sourceTitle ?? post.data.url}</a>
       </p>
     </header>
     {post.data.image && (

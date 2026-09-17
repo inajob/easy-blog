@@ -8,6 +8,7 @@ const posts = defineCollection({
     pubDate: z.coerce.date(),
     tags: z.array(z.string()).default([]),
     url: z.string().url(),
+    sourceTitle: z.string().optional(),
     image: z.string().optional(),
     youtube: z.array(z.string()).optional(),
   }),

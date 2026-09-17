@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// OGP画像・YouTube埋め込みの URL を記事ファイルのフロントマッターに機械的に付与する。
+// OGP画像・YouTube埋め込みの URL と、レビュー元のページタイトルを機械的に付与する。
 // 使い方:
 //   node scripts/apply-meta.mjs [対象ファイル]
 //   ※ 引数なしの場合、src/content/posts/ で今日の日付の最新ファイルを探す
@@ -7,8 +7,9 @@
 // 処理:
 //   1. ogp-context/info.json を読む
 //   2. 記事ファイルのフロントマッターに image: が無ければ image_url を追記
-//   3. フロントマッターに youtube: が無ければ youtube_embeds（embed URL 配列）を追記
-//   4. 変更があればファイルを書き出す
+//   3. フロントマッターに sourceTitle: が無ければ OGP の og:title を追記
+//   4. フロントマッターに youtube: が無ければ youtube_embeds（embed URL 配列）を追記
+//   5. 変更があればファイルを書き出す
 //   ※ YouTube のレンダリングは SSG 側（[...slug].astro）が行う
 
 import fs from 'node:fs';
@@ -39,6 +40,11 @@ function addYoutubeToFrontmatter(frontmatter, embeds) {
   if (hasField(frontmatter, 'youtube')) return frontmatter;
   const items = embeds.map((u) => `"${u}"`).join(', ');
   return frontmatter.trimEnd() + `\nyoutube: [${items}]\n`;
+}
+
+function addSourceTitleToFrontmatter(frontmatter, sourceTitle) {
+  if (hasField(frontmatter, 'sourceTitle')) return frontmatter;
+  return frontmatter.trimEnd() + `\nsourceTitle: ${JSON.stringify(sourceTitle)}\n`;
 }
 
 function main() {
@@ -74,6 +80,11 @@ function main() {
     frontmatter = addImageToFrontmatter(frontmatter, info.image_url);
   }
 
+  // レビュー元のページタイトル（OGP og:title）をフロントマッターに追記
+  if (info.title) {
+    frontmatter = addSourceTitleToFrontmatter(frontmatter, info.title);
+  }
+
   // YouTube の embed URL をフロントマッターに追記（SSG 側でレンダリング）
   if (info.youtube_embeds?.length > 0) {
     frontmatter = addYoutubeToFrontmatter(frontmatter, info.youtube_embeds);
@@ -84,6 +95,7 @@ function main() {
   if (newContent !== original) {
     fs.writeFileSync(target, newContent);
     console.log(`Updated: ${target}`);
+    if (info.title) console.log(`  sourceTitle: ${info.title}`);
     if (info.image_url) console.log(`  image: ${info.image_url}`);
     if (info.youtube_embeds?.length > 0) console.log(`  youtube: ${info.youtube_embeds.length} embed(s)`);
   } else {

@@ -66,6 +66,8 @@ GitHub Actions + OpenCode によるレビューブログ半自動生成環境の
     キャプションとして、1200x630 リサイズ＋縁取り付き JPEG を `public/post-images/` に出力（元画像削除・info.json 更新）
   - 次に `scripts/apply-meta.mjs` が記事ファイルのフロントマッターへ `image:` と `youtube:` を機械的に追記し、
     同じ PR ブランチへ追加コミットする（SSG 側が画像表示・iframe レンダリングを行う）
+  - 同じく `apply-meta.mjs` が、レビュー元ページのタイトル（OGP `og:title`）を `sourceTitle:` として frontmatter に追記する。
+    記事詳細の「レビュー元」はこの `sourceTitle` を表示する（無ければ `url` を表示）
 - [ ] 同じ Issue に `/rerun` をコメント → 既存 PR が閉じられ、最新のタグで記事が再生成される
 - [ ] PR に `/brushup 指摘` とコメント → 修正 commit が入る
 - [ ] PR に `/qa 質問文` とコメント → ファイル変更なしで回答コメントだけが返る（article-qa は edit/bash 権限なし）
