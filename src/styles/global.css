@@ -176,40 +176,6 @@ h2 {
   z-index: 1;
 }
 
-/* ホバーで「合格」スタンプ */
-.post-card::after {
-  content: "合格 ● 承認";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 2.2rem;
-  color: var(--stamp);
-  background: rgba(247, 243, 232, 0.55);
-  transform: rotate(-8deg);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-}
-
-.post-card:hover::after {
-  opacity: 1;
-}
-
-/* 日付を捺印風に */
-.post-list time,
-.post time {
-  display: inline-block;
-  padding: 0.05rem 0.5rem;
-  border: 2px solid var(--stamp);
-  border-radius: 6px;
-  color: var(--stamp);
-  font-weight: 600;
-}
-
 .post-card-thumb {
   flex-shrink: 0;
   width: 200px;
@@ -279,7 +245,7 @@ h2 {
   padding: 0;
 }
 
-/* シルク印刷風の角張ったタグ（モノクロ＋赤） */
+/* シルク印刷風の角張ったタグ（モノクロ） */
 .tags li {
   font-size: 0.75rem;
   font-family: var(--mono);
@@ -288,11 +254,6 @@ h2 {
   border-radius: 0;
   background: var(--bg-surface);
   padding: 0.15rem 0.5rem;
-}
-
-.tags li::before {
-  content: "#";
-  color: var(--stamp);
 }
 
 .tags li a {
