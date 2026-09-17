@@ -135,12 +135,12 @@ h2 {
   gap: 1.75rem;
 }
 
-.post-list li {
+.post-list > li {
   padding: 0;
   border-bottom: none;
 }
 
-.post-list li:last-child {
+.post-list > li:last-child {
   border-bottom: none;
 }
 
@@ -488,7 +488,7 @@ h2 {
     font-size: 1.2rem;
   }
 
-  .post-list li {
+  .post-list > li {
     padding: 0;
   }
 
