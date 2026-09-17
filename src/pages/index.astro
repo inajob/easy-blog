@@ -14,9 +14,10 @@ const posts = (await getCollection("posts")).sort(
   ) : (
     <ul class="post-list">
       {
-        posts.map((post) => (
+        posts.map((post, i) => (
           <li>
             <article class="post-card">
+              <span class="post-card-part">{String(i + 1).padStart(2, "0")}</span>
               {
                 post.data.image && (
                   <a class="post-card-thumb" href={`/easy-blog/posts/${post.slug}/`}>
